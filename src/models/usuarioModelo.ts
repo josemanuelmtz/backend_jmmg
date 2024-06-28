@@ -61,11 +61,20 @@ class UsuarioModelo {
         return result;
     }
 
-    public async delete(email: string) {
+    public async delete(usuario: any) {
+        const userExists = await pool.then(async (connection) => {
+            const result = await connection.query(
+                "SELECT COUNT(*) as count FROM tbl_usuario WHERE email = ?", [usuario.email]
+            );
+            return result[0].count > 0;
+        });
+        if (!userExists) {
+            throw new Error('El usuario no existe.');
+        }
         console.log('Eliminando');
         const result = await pool.then( async (connection) => {
             return await connection.query(
-             "DELETE FROM tbl_usuario where email= ?", [email]
+             "DELETE FROM tbl_usuario where email= ?", [usuario.email]
              );
         });
         return result;
